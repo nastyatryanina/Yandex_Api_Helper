@@ -1,3 +1,4 @@
 .idea
 .venv
 log_file.txt
+__pycache__
