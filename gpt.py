@@ -1,9 +1,8 @@
-import requests, logging, time, sys, tokens
+import requests, logging, time
 from config import MAX_TOKENS_IN_SESSION
-sys.path.insert(1, 'C:\\Users\\Admin\\Desktop\\Яндекс-практикум\\secret_info')
-from Yandex_Api_Gpt import folder_id
-expires_at  = time.time()
-iam_token = ''
+from config import folder_id
+expires_at = time.time()
+iam_token = 't1.9euelZqKjpCLz8iXnMuVz4vMlZmVke3rnpWalpGYjM2Qxs6WyJOex8aOlJnl8_d6SwRQ-e9MRGVT_d3z9zp6AVD570xEZVP9zef1656VmsmJz4yTjpmTjZaUicyOy5fL7_zF656VmsmJz4yTjpmTjZaUicyOy5fLveuelZqbx4-ZjZuNkpqPk4qJj8eUyLXehpzRnJCSj4qLmtGLmdKckJKPioua0pKai56bnoue0oye.Ht54JZO5gByOA9XdeuXcnTzvKqLGbaMMy5DhASolCNBnprsaDxQhAAUbK_1nAfLeWCztoUXHJMBa6YW6QwkxCQ'
 SYSTEM_PROMPT = (
     "Ты пишешь историю вместе с человеком. "
     "Историю вы пишете по очереди. Начинает человек, а ты продолжаешь. "
@@ -29,7 +28,7 @@ def create_prompt(user_data):
 
 def ask_gpt(collection, mode='continue'):
     url = f"https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
-    check_iam_token()
+    iam_token = check_iam_token()
     headers = {
         'Authorization': f'Bearer {iam_token}',
         'Content-Type': 'application/json'
@@ -76,9 +75,11 @@ def create_new_token():
     response = requests.get(metadata_url, headers=headers)
     return response.json()
 
+
 def check_iam_token():
     global expires_at, iam_token
-    if expires_at > time.time()+10:
+    if expires_at < time.time()+10:
         new_token = create_new_token()
         iam_token = new_token['access_token']
         expires_at = new_token['expires_in'] + time.time()
+    return iam_token

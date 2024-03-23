@@ -1,7 +1,5 @@
-import sys,os, database, gpt, telebot, logging, time
-sys.path.append(os.path.abspath("C:\\Users\\Admin\\Desktop\\Яндекс-практикум\\secret_info"))
-from Yandex_Api_Gpt import token
-from config import MAX_TOKENS_IN_SESSION, MAX_SESSIONS
+import database, gpt, telebot, logging, time
+from config import token, MAX_TOKENS_IN_SESSION, MAX_SESSIONS
 import tokens
 bot = telebot.TeleBot(token)
 
@@ -128,6 +126,9 @@ def set_info(message):
 
 @bot.message_handler(commands=['generate_story'])
 def generate_story(message):
+    database.create_db()
+    database.create_table()
+
     user_id = message.from_user.id
     check_user_id(user_id)
     session_id = tokens.check_sessions(user_id)['sessions']
@@ -136,7 +137,6 @@ def generate_story(message):
         "content": gpt.create_prompt(user_info[user_id])
     }]
     collection.extend(database.make_collection(user_id, session_id))
-
     check = tokens.check_tokens(user_id, session_id, collection) #проверка на количетво токенов в сессии
     if check['continue']:
         if check['problems']:
@@ -146,7 +146,7 @@ def generate_story(message):
                 end(message)
                 return
             else:#обычный запрос
-                result = gpt.ask_gpt(user_info[user_id], collection)
+                result = gpt.ask_gpt(collection)
                 logging.info("Запрос к нейросети")
             if result['done']:
                 database.insert_row(user_id, 'assistant', result['text'], time.time(), result['total_tokens'], session_id)
@@ -183,7 +183,7 @@ def end(message):
     user_id = message.from_user.id
     session_id = tokens.check_sessions(user_id)['sessions']
     collection = database.make_collection(user_id, session_id)  # обычный запрос
-    result = gpt.ask_gpt(user_info[user_id], collection, mode='end')
+    result = gpt.ask_gpt(collection, mode='end')
     if result['done']:
         database.insert_row(user_id, 'assistant', result['text'], time.time(), result['total_tokens'], session_id)
         bot.send_message(user_id,

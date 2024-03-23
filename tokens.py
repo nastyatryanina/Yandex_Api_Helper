@@ -1,7 +1,8 @@
 import database, requests, sys
 from config import MAX_TOKENS_IN_SESSION, MAX_USERS, MAX_SESSIONS
-sys.path.insert(1, 'C:\\Users\\Admin\\Desktop\\Яндекс-практикум\\secret_info')
-from Yandex_Api_Gpt import iam_token, folder_id
+from config import folder_id
+from gpt import check_iam_token
+
 def check_sessions(user_id):
     used_sources = database.get_value_from_row('session_id', 'system', user_id)
     if used_sources:
@@ -13,6 +14,8 @@ def check_sessions(user_id):
         return {'continue': True, 'problems': f'У Вас осталось {MAX_SESSIONS - sessions} сессий.', 'sessions': sessions}
 
     return {'continue': True, 'problems': '', 'sessions': 0}
+
+
 def check_tokens(user_id, session_id, collection):
     used_sources = database.get_multiple('token', 'assistant', ['session_id'], [session_id], user_id)
     tokens_of_session = count_tokens_in_dialog(collection)
@@ -48,6 +51,7 @@ def check_users():
 
 
 def count_tokens_in_dialog(collection):
+    iam_token = check_iam_token()
     headers = {
         'Authorization': f'Bearer {iam_token}',
         'Content-Type': 'application/json'
@@ -57,18 +61,26 @@ def count_tokens_in_dialog(collection):
        "maxTokens": 100,
        "messages": []
     }
-    for row in collection:
-        data["messages"].append(
-            {
-                "role": row["role"],
-                "text": row["content"]
-            }
+    if collection:
+        for row in collection:
+            data["messages"].append(
+                {
+                    "role": row["role"],
+                    "text": row["content"]
+                }
+            )
+        result = requests.post(
+                "https://llm.api.cloud.yandex.net/foundationModels/v1/tokenizeCompletion",
+                json=data,
+                headers=headers
+            ).json()
+        print(result)
+        return len(
+            requests.post(
+                "https://llm.api.cloud.yandex.net/foundationModels/v1/tokenizeCompletion",
+                json=data,
+                headers=headers
+            ).json()["tokens"]
         )
-
-    return len(
-        requests.post(
-            "https://llm.api.cloud.yandex.net/foundationModels/v1/tokenizeCompletion",
-            json=data,
-            headers=headers
-        ).json()["tokens"]
-    )
+    else:
+        return 0
