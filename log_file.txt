@@ -1,4 +1,6 @@
-2024-03-21 12:01:12,701 - root - INFO - Бот запущен
-2024-03-21 12:01:16,992 - root - INFO - Режим дебаг
-2024-03-21 12:11:13,601 - TeleBot - ERROR - Infinity polling: polling exited
-2024-03-21 12:11:13,601 - TeleBot - ERROR - Break infinity polling
+2024-03-23 17:02:19,191 - root - INFO - Бот запущен
+2024-03-23 17:02:32,829 - root - INFO - Запрос к нейросети
+2024-03-23 17:02:54,127 - root - INFO - История закончилась
+2024-03-23 17:03:40,338 - root - INFO - Подсчет токенов
+2024-03-23 17:03:58,387 - TeleBot - ERROR - Infinity polling: polling exited
+2024-03-23 17:03:58,387 - TeleBot - ERROR - Break infinity polling
