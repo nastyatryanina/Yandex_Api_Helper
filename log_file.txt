@@ -1,0 +1,4 @@
+2024-03-21 12:01:12,701 - root - INFO - Бот запущен
+2024-03-21 12:01:16,992 - root - INFO - Режим дебаг
+2024-03-21 12:11:13,601 - TeleBot - ERROR - Infinity polling: polling exited
+2024-03-21 12:11:13,601 - TeleBot - ERROR - Break infinity polling
